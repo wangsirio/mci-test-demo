@@ -18,16 +18,6 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-import org.json.JSONObject;
-import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import android.os.AsyncTask;
-import android.util.Log;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
-
 public class MainActivity extends AppCompatActivity {
     private String selectedGender = "男";
     private String selectedEducation = "未上学";
@@ -138,107 +128,10 @@ public class MainActivity extends AppCompatActivity {
             // 创建用户数据对象
             UserData userData = new UserData(selectedGender, selectedEducation, age);
             
-            // 发送数据到服务器
-            new SendDataTask().execute(userData);
+            // 启动Cube_Analysis_Activity并传递userData
+            Intent intent = new Intent(MainActivity.this, Cube_Analysis_Activity.class);
+            intent.putExtra("userData", userData);
+            startActivity(intent);
         });
-    }
-
-    private class SendDataTask extends AsyncTask<UserData, Void, String> {
-        @Override
-        protected String doInBackground(UserData... userData) {
-            HttpURLConnection conn = null;
-            try {
-                String serverUrl = getString(R.string.server_url);
-                Log.d("NetworkRequest", "Connecting to: " + serverUrl);
-                
-                URL url = new URL(serverUrl);
-                conn = (HttpURLConnection) url.openConnection();
-                conn.setRequestMethod("POST");
-                conn.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
-                conn.setRequestProperty("Accept", "application/json");
-                // 增加超时时间
-                conn.setConnectTimeout(1500);  // 15秒
-                conn.setReadTimeout(1500);     // 15秒
-                conn.setDoOutput(true);
-                conn.setDoInput(true);
-                // 禁用缓存
-                conn.setUseCaches(false);
-
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("gender", userData[0].getGender());
-                jsonObject.put("education", userData[0].getEducation());
-                jsonObject.put("age", userData[0].getAge());
-                
-                String jsonString = jsonObject.toString();
-                Log.d("NetworkRequest", "Sending data: " + jsonString);
-
-                // 连接前打印日志
-                Log.d("NetworkRequest", "Connecting...");
-                conn.connect();
-                Log.d("NetworkRequest", "Connected");
-
-                try (OutputStream os = conn.getOutputStream()) {
-                    byte[] input = jsonString.getBytes("UTF-8");
-                    os.write(input, 0, input.length);
-                    os.flush();
-                    Log.d("NetworkRequest", "Data written to output stream");
-                }
-
-                int responseCode = conn.getResponseCode();
-                Log.d("NetworkRequest", "Response code: " + responseCode);
-                
-                if (responseCode == HttpURLConnection.HTTP_OK) {
-                    // 读取响应
-                    try (BufferedReader br = new BufferedReader(
-                            new InputStreamReader(conn.getInputStream(), "UTF-8"))) {
-                        StringBuilder response = new StringBuilder();
-                        String responseLine;
-                        while ((responseLine = br.readLine()) != null) {
-                            response.append(responseLine.trim());
-                        }
-                        Log.d("NetworkRequest", "Response: " + response.toString());
-                    }
-                    return "success";
-                } else {
-                    // 读取错误流
-                    try (BufferedReader br = new BufferedReader(
-                            new InputStreamReader(conn.getErrorStream(), "UTF-8"))) {
-                        StringBuilder error = new StringBuilder();
-                        String errorLine;
-                        while ((errorLine = br.readLine()) != null) {
-                            error.append(errorLine.trim());
-                        }
-                        Log.e("NetworkRequest", "Error response: " + error.toString());
-                        return "服务器返回错误代码: " + responseCode + ", " + error.toString();
-                    }
-                }
-
-            } catch (java.net.ConnectException e) {
-                Log.e("NetworkRequest", "Connection error: " + e.getMessage(), e);
-                return "连接服务器失败，请检查服务器地址是否正确: " + e.getMessage();
-            } catch (java.net.SocketTimeoutException e) {
-                Log.e("NetworkRequest", "Timeout error: " + e.getMessage(), e);
-                return "连接服务器超时: " + e.getMessage();
-            } catch (Exception e) {
-                Log.e("NetworkRequest", "Error: " + e.getMessage(), e);
-                e.printStackTrace();
-                return "错误: " + e.getMessage();
-            } finally {
-                if (conn != null) {
-                    conn.disconnect();
-                }
-            }
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            if ("success".equals(result)) {
-                // 数据发送成功，跳转到新的Activity
-                Intent intent = new Intent(MainActivity.this, Cube_Analysis_Activity.class);
-                startActivity(intent);
-            } else {
-                Toast.makeText(MainActivity.this, result, Toast.LENGTH_LONG).show();
-            }
-        }
     }
 }

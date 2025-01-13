@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">My Application</string>
+    <string name="app_name">mci-test</string>
     <string name="server_url">http://192.168.0.104:65432/submit_data</string>
     <string-array name="gender_array">
         <item>男</item>
@@ -15,4 +15,8 @@
         <item>硕士</item>
         <item>博士</item>
     </string-array>
+    <string name="cube_instruction">请数出图片中的立方体都有几个？将答案写在下方框中。</string>
+    <string name="next_question">下一题</string>
+    <string name="finish">完成</string>
+    <string name="enter_number">请输入数字</string>
 </resources>
