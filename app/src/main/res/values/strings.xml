@@ -1,0 +1,18 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="server_url">http://192.168.0.104:65432/submit_data</string>
+    <string-array name="gender_array">
+        <item>男</item>
+        <item>女</item>
+    </string-array>
+    
+    <string-array name="education_array">
+        <item>未上学</item>
+        <item>小学</item>
+        <item>初中</item>
+        <item>高中/专科</item>
+        <item>本科</item>
+        <item>硕士</item>
+        <item>博士</item>
+    </string-array>
+</resources>
